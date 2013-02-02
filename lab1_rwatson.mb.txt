@@ -1,0 +1,69 @@
+Name:Robert Watson
+Partner: Dylan White
+Principles of Programming Homework 1 Write up
+
+Problem 2:
+a)
+The use of pi at line 4: This occurrence of pi is bound at line 3. While pi is bound at line 1,
+because of the nature of scoping the pi value bound at line 1 will note interfere with the value of pie
+which is used in the function "circumference".
+The use of pi at line 7: This occurrence of pi is bound at line 1. The redefinition of pi in the
+function "circumference" will not effect the usage of pi at line 7 since it is outside of the scope of the
+function of "circumference". Hence, the original value of pi is used.
+
+b)
+The use of x at line 3: This occurrence of x is bound at line 2. This x that is being referred to is
+the same int that is used as input in the function.
+The use of x in line 6: This occurrence of x is bound at line 5. This is because when the input x
+is matched to a number of the form x: Int, it is redefined. This seems confusing, as the two values have
+the same name, and will hold the same value (unless x = 0).
+The use of x at line 10: This occurrence of x is bound at line 5 because it is still within the scope
+of the pattern matching. x is redefined on line 8, but by the time we are on line 10, we have left the
+scope of the redefined x.
+The two uses of x at line 13: These occurrences of x are both bound at line 1. This is because
+they are outside the scope of the function “f”.
+
+Problem 3:
+This function will return a value of the form ((Int, Int), Int), and thus is well typed. We
+determined this by looking at the values that were returned by the function. The two possible returns
+are (b, 1), and (b, a + 2) where b is a pair of Ints and a is an Int. As a result both possible return values
+will have the form given above.
+This function has 2 expressions.
+
+Expression 1:
+val (a, b) = (1, (x, 3)): expression because
+(a, b): ((Int, Int), Int)
+a: Int because
+1 :Int
+b: (Int, Int) because
+(x, 3): (Int, Int) because
+x: Int
+3: Int
+=: Assignment operator
+(1, (x, 3)): ((Int, Int), Int) because
+1: Int
+(x, 3): (Int, Int) because
+x: Int
+3: Int
+
+Expression 2:
+if (x == 0) (b, 1) else (b, a + 2): expression because
+(x == 0): Boolean because
+x: Int
+== : Boolean operator
+0: Int
+(b, 1) : ((Int, Int), Int) because
+b: (Int, Int) because
+(x, 3): (Int, Int) because
+x: Int
+3: Int
+1: Int
+(b, a + 2): ((Int, Int), Int)
+b: (Int, Int) because
+(x, 3): (Int, Int) because
+x: Int
+3: Int
+a + 2: Int because
+a: Int
++: Addition operator
+2: Int

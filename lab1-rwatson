@@ -1,0 +1,212 @@
+object Lab1_rwatson {
+  
+/*
+ * CSCI 3155: Lab 1
+ * Robert Watson
+ * 
+ * Partner: Dylan White 
+ * Collaborators: n/a
+ */
+  
+  //Note: The exercise numbers have been renumbered so they are consistent with the hand out
+  
+  
+/* Exercise 4a */
+  
+  
+  //abs (absolute value) function
+  def abs(n: Double): Double = if (n < 0) -n else n
+  
+  //abs test function (checks one negative and one positive number)
+  def testAbs(abs: Double => Double): Boolean = {
+    (abs(-1) == 1) && (abs(1) == 1)
+  }
+  
+  //test abs with abs test
+  assert(testAbs(abs))
+  
+  
+/* Exercise 4b */
+  
+  
+  //Xor (exclusive or) function
+  def xor(a: Boolean, b: Boolean): Boolean = !(a==b)
+  
+  //Xor test function (checks every combination)
+  def testXor(xor: (Boolean, Boolean) => Boolean): Boolean = {
+    xor(false, false)==false && xor(false, true)==true && xor(true, false)==true && xor(true, true)==false
+  }
+  
+  //Test xor with xor test
+  assert(testXor(xor))
+  
+  
+  
+/* Exercise 5a */
+  
+  
+  //repeat function - Repeats a given string a given number of times.
+  def repeat(s: String, n: Int): String = {
+    require(n >= 0, "Cannot repeat a string a negative number of times")
+    n match {
+      case 0 => ""
+      case 1 => s
+      case n => s.concat(repeat(s, n - 1))
+    }
+  }
+  
+  //repeat test function (checks 3 cases)
+  def testRepeat(repeat: (String, Int) => String): Boolean = {
+    repeat("a", 3) == "aaa" && repeat("1", 1) == "1" && repeat("repeat", 2) == "repeatrepeat"
+  }
+  
+  //test repeat with repeat test
+  assert(testRepeat(repeat))
+  
+  
+/* Exercise 5b */
+  
+  
+  //sqrtStep (square root step) function - Performs one iteration of Newton's method.
+  def sqrtStep(c: Double, xn: Double): Double = {
+    require (c >= 0, "sqrtStep requires 'c' to be non-negative")
+    xn - ((xn * xn) - c) / (2 * xn)
+  }
+  
+  //sqrtN (square root n) function - Performs n iterations of Newton's method.
+  def sqrtN(c: Double, x0: Double, n: Int): Double = {
+    require(n >= 0, "sqrtN is not equipped to handle a negative number of iterations")
+    require (c >= 0, "sqrtN requires 'c' to be non-negative")
+    n match {
+      case 0 => x0
+      case 1 => sqrtStep(c, x0)
+      case n => sqrtStep(c, sqrtN(c, x0, n - 1))
+    }
+  }
+  
+  //sqrtErr (square root error) function - Calculates the square root with a maximum error of epsilon.
+  //  Note: To us, approximation error refers to the difference between the approximated answer and the actual
+  //        answer i.e., (|xn - sqrt(c)| < epsilon) rather than (|xn^2 - c| < epsilon). Despite this, We followed
+  //        the guidelines on the hand out.
+  def sqrtErr(c: Double, x0: Double, epsilon: Double): Double = {
+    require(epsilon > 0.0, "The desired minimum error must be non-negative")
+    require (c >= 0, "sqrtErr requires 'c' to be non-negative")
+    val error = abs((x0 * x0) - c)
+    val closeEnough = (error <= epsilon)
+    closeEnough match {
+      case true  => x0
+      case false => sqrtErr(c, sqrtStep(c, x0), epsilon)
+    }
+  }
+  
+  //sqrt (square root) function - Calculates the square root of c such that |xn^2 - c| < 0.0001.
+  def sqrt(c: Double): Double = {
+    require (c >= 0, "sqrt requires 'c' to be non-negative")
+    sqrtErr(c, 1.0, 0.0001)
+  }
+  
+  
+  
+/* Exercise 6 */
+  
+  
+  //Class definitions
+  sealed abstract class SearchTree
+  case object Empty extends SearchTree
+  case class Node(l: SearchTree, d: Int, r: SearchTree) extends SearchTree
+  
+  
+  //repOk function - Returns true if and only if the Tree is valid.
+  def repOk(t: SearchTree): Boolean = {
+    def check(t: SearchTree, min: Int, max: Int): Boolean = 
+    t match {
+      case Empty => true
+      case Node(l, d, r) => (min <= d) && (max > d) && (check(l, min, d)) && (check(r, d, max))
+    }
+    check(t, Int.MinValue, Int.MaxValue)
+  }
+  
+  //insert function - Inserts value into a SearchTree in a valid location.
+  def insert(t: SearchTree, n: Int): SearchTree = {
+    (t  : @unchecked) match {
+      case Empty => Node(Empty, n, Empty)
+      case Node(l, d, r) if (n < d) => Node(insert(l, n), d, r)
+      case Node(l, d, r) if (n >= d) => Node(l, d, insert(r, n))
+      
+    }
+  } 
+  
+  //deleteMin function - Deletes the minimum value of a given search tree, and returns the tuple (SearchTree less min, min).
+  def deleteMin(t: SearchTree): (SearchTree, Int) = {
+    require(t != Empty, "Cannot perform deleteMin on Empty")
+    (t: @unchecked) match {
+      case Node(Empty, d, r) => (r, d)
+      case Node(l, d, r) => {
+        val (l1, m) = deleteMin(l)
+        (Node(l1, d, r), m)
+      }
+    }
+  }
+ 
+  //delete function - Deletes a specified value from a SearchTree, if the value is in the tree.
+  def delete(t: SearchTree, n: Int): SearchTree = {//deletes the node with value n
+    (t  : @unchecked) match {
+      case Empty => Empty
+      case Node(l, d, r) if (n < d) => Node(delete(l, n), d, r)//find node suppsed to delete
+      case Node(l, d, r) if (n > d) => Node(l, d, delete(r, n))
+      case Node(l, d, r) if (n == d) => {//Deletes node and reorganizes tree
+      if (r== Empty)
+        l
+        else{
+          val (t2, m) = deleteMin(r)
+          Node(l, m, t2)
+        }
+        }
+      } 
+    }
+  
+  
+  //printTree function - Bonus function used for testing.
+  def printTree(t: SearchTree, depth: Int): Unit = {
+    t match {
+      case Empty => println (repeat(" ", depth * 4) + depth + ": " + "E")
+      case Node(l, d, r) => {
+        printTree(l, depth + 1)
+        println(repeat(" ", depth * 4) + depth + ": (" + d + ")")
+        printTree(r, depth + 1)
+      }
+    }
+  }
+  
+  //Some testing code.
+  val t1 = insert(Empty, 3) 
+  assert(repOk(t1))
+  val t2 = insert(t1, 6)
+  assert(repOk(t2))
+  
+  // Some more testing code that uses the Scala List libray.  The function 'treeFromList'
+  // inserts all the elements in the list into the tree.  It is likely the code
+  // will look quite mysterious now.  We hope break it down eventually in the
+  // course, but you can try to figure it out by reading Scala documentation yourself.
+  // To get started, /: is an operator to corresponds to the 'foldLeft' method on
+  // lists.
+  //
+  // Regardless, you can use this function to help test your code.
+  def treeFromList(l: List[Int]): SearchTree = ((Empty: SearchTree) /: l)(insert)
+  val t3 = treeFromList(List(3, 4, 7, 2, 1, 10,     3, 4, 6, 7, 15, 8, 9))
+  assert(repOk(t3))
+  
+  //Bonus test code.
+  printTree(t3, 0)
+  println("")
+  val t4: SearchTree = delete(t3, 4)
+  printTree(t4, 0)
+  println("")
+  val t5: SearchTree = insert(t4, 1)
+  printTree(t5, 0)
+  println("")
+  val (t6, _) = deleteMin(t5)
+  printTree(t6, 0)
+  println("")
+   
+}
